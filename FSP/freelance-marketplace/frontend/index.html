@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corkboard — Freelance Marketplace (Java Full Stack)</title>
+<link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="vendor/bootstrap-icons/font/bootstrap-icons.min.css" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#"><i class="bi bi-pin-angle-fill text-warning"></i> Corkboard</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="#projects">Projects</a></li>
+        <li class="nav-item"><a class="nav-link" href="#freelancers">Freelancers</a></li>
+
+        <li class="nav-item dropdown" id="registerDropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Register</a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerClientModal">As a Client</a></li>
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerFreelancerModal">As a Freelancer</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-item" id="loginNavItem">
+          <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+        </li>
+
+        <li class="nav-item d-none" id="sessionNavItem">
+          <span class="navbar-text text-light me-2" id="sessionLabel"></span>
+          <button class="btn btn-outline-light btn-sm" onclick="logout()">Logout</button>
+        </li>
+
+        <li class="nav-item ms-lg-2">
+          <a class="nav-link btn btn-success text-white px-3" href="#post-project" data-bs-toggle="modal" data-bs-target="#postProjectModal">Post a Project</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+
+<!-- HERO -->
+<header class="hero text-white text-center py-5">
+  <div class="container py-4">
+    <h1 class="display-5 fw-bold">Post it. Pin it. Get it built.</h1>
+    <p class="lead col-lg-7 mx-auto">A Java Spring Boot + MySQL powered freelance marketplace. Data below is fetched live from the REST API.</p>
+    <div id="apiStatus" class="badge bg-secondary">Checking API connection...</div>
+  </div>
+</header>
+
+<!-- STATS -->
+<section class="container my-4">
+  <div class="row text-center g-3" id="statsRow">
+    <div class="col-6 col-md-3">
+      <div class="card stat-card"><div class="card-body">
+        <div class="fs-3 fw-bold text-warning" id="statProjects">–</div>
+        <div class="text-muted small">Projects</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card"><div class="card-body">
+        <div class="fs-3 fw-bold text-warning" id="statFreelancers">–</div>
+        <div class="text-muted small">Freelancers</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card"><div class="card-body">
+        <div class="fs-3 fw-bold text-warning" id="statCategories">–</div>
+        <div class="text-muted small">Categories</div>
+      </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card stat-card"><div class="card-body">
+        <div class="fs-3 fw-bold text-warning" id="statOpen">–</div>
+        <div class="text-muted small">Open Right Now</div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="container my-5" id="projects">
+  <h2 class="mb-3"><i class="bi bi-clipboard-check"></i> Browse Projects</h2>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-6">
+      <input type="text" class="form-control" id="searchInput" placeholder="Search projects by title...">
+    </div>
+    <div class="col-md-6">
+      <select class="form-select" id="categoryFilter">
+        <option value="">All categories</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row g-3" id="projectGrid">
+    <div class="col-12 text-center text-muted py-4">Loading projects...</div>
+  </div>
+</section>
+
+<!-- FREELANCERS -->
+<section class="container my-5" id="freelancers">
+  <h2 class="mb-3"><i class="bi bi-person-badge"></i> Top Freelancers</h2>
+  <div class="row g-3" id="freelancerGrid">
+    <div class="col-12 text-center text-muted py-4">Loading freelancers...</div>
+  </div>
+</section>
+
+<!-- POST PROJECT MODAL -->
+<div class="modal fade" id="postProjectModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="postProjectForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Post a New Project</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="postProjectAlert"></div>
+          <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input type="text" class="form-control" id="pTitle" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" id="pDescription" rows="3"></textarea>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Budget Min ($)</label>
+              <input type="number" step="0.01" class="form-control" id="pBudgetMin" required>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Budget Max ($)</label>
+              <input type="number" step="0.01" class="form-control" id="pBudgetMax" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" id="pCategory" required></select>
+          </div>
+          <div class="mb-3" id="pClientIdWrapper">
+            <div class="alert alert-info small mb-0" id="pClientSessionNote">
+              Posting as: <strong id="pClientSessionName"></strong>
+            </div>
+            <input type="hidden" id="pClientId">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Deadline</label>
+            <input type="date" class="form-control" id="pDeadline" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Post Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- FREELANCER DETAIL MODAL -->
+<div class="modal fade" id="freelancerDetailModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Freelancer Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="freelancerDetailBody">
+        <div class="text-center text-muted py-4">Loading...</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER AS CLIENT MODAL -->
+<div class="modal fade" id="registerClientModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="registerClientForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Register as a Client</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="registerClientAlert"></div>
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="rcName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="rcEmail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="rcPassword" minlength="6" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Country</label>
+            <input type="text" class="form-control" id="rcCountry" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Company Name</label>
+            <input type="text" class="form-control" id="rcCompanyName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Industry</label>
+            <input type="text" class="form-control" id="rcIndustry" placeholder="e.g. Retail, Technology, Healthcare" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="loginForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Login</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="loginAlert"></div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="loginEmail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="loginPassword" required>
+          </div>
+          <div class="form-text">
+            Note: only accounts created through Register have a password.
+            The original 30 seed accounts (from the SQL file) don't — register a new account to log in.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Login</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- REGISTER AS FREELANCER MODAL -->
+<div class="modal fade" id="registerFreelancerModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="registerFreelancerForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Register as a Freelancer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="registerFreelancerAlert"></div>
+          <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="rfName" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="rfEmail" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="rfPassword" minlength="6" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Country</label>
+            <input type="text" class="form-control" id="rfCountry" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Professional Title</label>
+            <input type="text" class="form-control" id="rfTitle" placeholder="e.g. Full-Stack Web Developer" required>
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Hourly Rate ($)</label>
+              <input type="number" step="0.01" class="form-control" id="rfRate" required>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Years Experience</label>
+              <input type="number" class="form-control" id="rfYears" value="0" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Availability</label>
+            <select class="form-select" id="rfAvailability">
+              <option value="available">Available</option>
+              <option value="busy">Busy</option>
+              <option value="unavailable">Unavailable</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Register</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT PROPOSAL MODAL (freelancer side) -->
+<div class="modal fade" id="submitProposalModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="submitProposalForm">
+        <div class="modal-header">
+          <h5 class="modal-title">Submit a Proposal — <span id="proposalProjectTitle"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div id="submitProposalAlert"></div>
+          <input type="hidden" id="spProjectId">
+          <div class="mb-3">
+            <div class="alert alert-info small mb-0" id="spFreelancerSessionNote">
+              Submitting as: <strong id="spFreelancerSessionName"></strong>
+            </div>
+            <input type="hidden" id="spFreelancerId">
+          </div>
+          <div class="row">
+            <div class="col-6 mb-3">
+              <label class="form-label">Bid Amount ($)</label>
+              <input type="number" step="0.01" class="form-control" id="spBidAmount" required>
+            </div>
+            <div class="col-6 mb-3">
+              <label class="form-label">Delivery (days)</label>
+              <input type="number" class="form-control" id="spDeliveryDays" required>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Cover Letter</label>
+            <textarea class="form-control" id="spCoverLetter" rows="3" placeholder="Why you're the right fit for this project..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success">Submit Proposal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW PROPOSALS MODAL (client side) -->
+<div class="modal fade" id="viewProposalsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Proposals for — <span id="viewProposalsTitle"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="proposalsList"><div class="text-center text-muted py-4">Loading proposals...</div></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div> <!-- /#mainContent -->
+
+<footer class="bg-dark text-light text-center py-4 mt-5">
+  <div class="container">
+    <small>Corkboard &mdash; Java Full Stack demo project (Spring Boot + MySQL + Bootstrap).</small>
+  </div>
+</footer>
+
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

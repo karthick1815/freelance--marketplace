@@ -1,0 +1,42 @@
+body {
+  background-color: #f4f5f7;
+}
+
+.hero {
+  background: linear-gradient(135deg, #1b1f2a, #2e6b5f);
+}
+
+.stat-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.project-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform .15s ease, box-shadow .15s ease;
+  height: 100%;
+}
+
+.project-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
+}
+
+.freelancer-card {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  height: 100%;
+}
+
+.badge-status-open { background-color: #3e8e7e; }
+.badge-status-in_progress { background-color: #d4a24c; color: #22262f; }
+.badge-status-completed { background-color: #39457a; }
+.badge-status-cancelled { background-color: #a35c5c; }
+
+.navbar-brand i {
+  margin-right: 4px;
+}
